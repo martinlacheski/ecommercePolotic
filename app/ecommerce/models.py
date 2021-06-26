@@ -70,6 +70,11 @@ class Carrito(models.Model):
     def __str__(self):
         return self.usuario.username
 
+    @property
+    def get_total_carrito(self):
+        total = 0
+        return total
+
     def toJSON(self):
         item = model_to_dict(self)
         item['usuario'] = self.usuario.toJSON()

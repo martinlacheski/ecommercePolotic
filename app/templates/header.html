@@ -59,10 +59,13 @@
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="fas fa-shopping-cart"></i> {{ request.user.username }}
+                    <span class="float-right badge badge-warning navbar-badge">{{ carrito }}</span>
+
                 </a>
                 <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                     <li><a href="{% url 'ecommerce:carrito_list' %}" class="dropdown-item"><i class="fas fa-boxes"></i>Ver
                         Carrito de Compras</a></li>
+                    <span class="float-right badge badge-warning navbar-badge">{{ carrito }}</span>
                 </ul>
             </li>
             {% endif %}

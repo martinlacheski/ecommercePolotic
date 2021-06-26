@@ -1,40 +1,102 @@
 {% extends 'body.html' %}
 {% load static %}
-{% block content %}
-      <!-- Default box -->
-      <div class="card card-solid">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-12 col-sm-6">
-              <h3 class="d-inline-block d-sm-none"></h3>
-              <div class="col-12">
-                <img src="{{ producto.imagen.url }}" class="product-image" alt="Product Image">
-              </div>
-            </div>
-            <div class="col-12 col-sm-6">
-              <h3 class="my-3">{{ producto.titulo }}</h3>
-              <p>{{ producto.categoria.descripcion }}</p>
-              <p>{{ producto.descripcion }}</p>
-              <hr>
-              <div class="bg-gray py-2 px-3 mt-2">
-                <h2 class="mb-0">
-                  Precio:
-                </h2>
-                <h4 class="mt-0">
-                  <small>{{ producto.precio }} </small>
-                </h4>
-              </div>
-              <div class="mt-4">
-                <div class="btn btn-primary btn-lg btn-flat">
-                  <i class="fas fa-cart-plus fa-lg mr-2"></i> 
-                  Agregar al carrito
-                </div>
-                <a href="{% url 'ecommerce:producto_usuario_list' %}" class="btn btn-default btn-lg btn-flat">
-                <i class="fas fa-times"></i> Volver atras
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+{% block head %}
+<script type="application/javascript">
+    //Obtenemos el usuario actual
+    var user = '{{request.user}}'
+    //Funcion para generar el TOKEN para pasar por Javascript Info al Backend
+    function getToken(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    //Constante TOKEN
+    const csrftoken = getToken('csrftoken');
+</script>
 {% endblock %}
+{% block content %}
+<!-- Default box -->
+<div class="card card-solid">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-sm-6">
+                <h3 class="d-inline-block d-sm-none"></h3>
+                <div class="col-12">
+                    <img src="{{ producto.imagen.url }}" class="product-image" alt="Product Image">
+                </div>
+            </div>
+            <div class="col-12 col-sm-6">
+                <h3 class="my-3">{{ producto.titulo }}</h3>
+                <p>{{ producto.categoria.descripcion }}</p>
+                <p>{{ producto.descripcion }}</p>
+                <hr>
+                <div class="bg-gray py-2 px-3 mt-2">
+                    <h2 class="mb-0">
+                        Precio:
+                    </h2>
+                    <h4 class="mt-0">
+                        <small>{{ producto.precio }} </small>
+                    </h4>
+                </div>
+                <div class="mt-4">
+                    <!--agregamos datos del producto y la clase update-cart para utilizar en javascript-->
+                    <input type="hidden" name="action" value="{{ action }}">
+                    <button class="btn btn-primary btn-lg btn-flat btnAddCart">
+                        <i class="fas fa-cart-plus fa-lg mr-2"></i> Agregar al carrito
+                    </button>
+                    <a href="{% url 'ecommerce:producto_usuario_list' %}" class="btn btn-default btn-lg btn-flat">
+                        <i class="fas fa-times"></i> Volver atras
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="application/javascript">
+    $('.btnAddCart').on('click', function () {
+        console.log('Logueado');
+        var productId = this.dataset.product;
+        var action = this.dataset.action;
+        console.log(user);
+        if (user == 'AnonymousUser') {
+            console.log('Usuario no autenticado')
+        } else {
+            console.log('hasta aca todo OK')
+            addCart(user, productId, action)
+        }
+    })
+
+    function addCart(user, productId, action) {
+        //console.log('Usuario: ', user, 'Producto ID: ', productId, 'Accion: ', action)
+        var url = '/carrito/add/'
+
+        fetch(url, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({'productId': productId, 'action': action})
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                //console.log('hasta aca todo OK')
+                location.reload()
+            })
+    }
+    ;
+</script>
+{% endblock %}
+
