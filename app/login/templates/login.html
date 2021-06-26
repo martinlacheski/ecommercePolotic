@@ -20,7 +20,8 @@
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <a href="{% url 'ecommerce:dashboard' %}"><b>Jaguarete</b>KAA S.A.</a>
+        <a href="{% url 'ecommerce:dashboard' %}"><img src="{% static 'img/jaguar.png' %}" width="50%" height="50%"/>
+            <b>Jaguarete</b>KAA S.A.</a>
     </div>
     <div class="card">
         <div class="card-body login-card-body">
@@ -51,12 +52,12 @@
                         </button>
                     </div>
                 </div>
-                <p class="text-center mt-2" >
+                <p class="text-center mt-2">
                     <a href="{% url 'ecommerce:dashboard' %}"><b>Regresar al Sitio</b></a>
                 </p>
                 <p class="text-center mt-2" style="font-size: 13px;">
-                        Si no posees usuario puedes registrarte <a href="{% url 'create_user' %}">aqui </a>
-                    </p>
+                    Si no posees usuario puedes registrarte <a href="{% url 'create_user' %}">aqui </a>
+                </p>
             </form>
         </div>
     </div>
