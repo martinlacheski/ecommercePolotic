@@ -1,0 +1,25 @@
+{% extends 'listCarrito.html' %}
+
+{% block columns %}
+    <tr>
+        <th scope="col" style="width: 35%;">Categoría</th>
+        <th scope="col" style="width: 35%;">Producto</th>
+        <th scope="col" style="width: 15%;">Precio</th>
+        <th scope="col" style="width: 15%;">Opciones</th>
+    </tr>
+{% endblock %}
+
+{% block rows %}
+    {% for c in object_list %}
+        <tr>
+            <td>{{ c.categoria.descripcion }}</td>
+            <td>{{ c.producto.titulo }}</td>
+            <td>{{ c.producto.precio }}</td>
+            <td>
+                <a href="{% url 'ecommerce:producto_delete' c.id %}" type="button" class="btn btn-danger btn-xs btn-flat">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}

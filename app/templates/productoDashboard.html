@@ -1,0 +1,40 @@
+{% extends 'body.html' %}
+{% load static %}
+{% block content %}
+      <!-- Default box -->
+      <div class="card card-solid">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-sm-6">
+              <h3 class="d-inline-block d-sm-none"></h3>
+              <div class="col-12">
+                <img src="{{ producto.imagen.url }}" class="product-image" alt="Product Image">
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <h3 class="my-3">{{ producto.titulo }}</h3>
+              <p>{{ producto.categoria.descripcion }}</p>
+              <p>{{ producto.descripcion }}</p>
+              <hr>
+              <div class="bg-gray py-2 px-3 mt-2">
+                <h2 class="mb-0">
+                  Precio:
+                </h2>
+                <h4 class="mt-0">
+                  <small>{{ producto.precio }} </small>
+                </h4>
+              </div>
+              <div class="mt-4">
+                <div class="btn btn-primary btn-lg btn-flat">
+                  <i class="fas fa-cart-plus fa-lg mr-2"></i> 
+                  Agregar al carrito
+                </div>
+                <a href="{% url 'ecommerce:dashboard' %}" class="btn btn-default btn-lg btn-flat">
+                <i class="fas fa-times"></i> Volver atras
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

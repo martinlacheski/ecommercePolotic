@@ -1,0 +1,45 @@
+{% extends 'home.html' %}
+
+{% block body %}
+<body class="hold-transition layout-top-nav">
+<div class="wrapper">
+    <!-- Header -->
+    {% include 'header.html' %}
+    <!-- Content -->
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        {% if user.is_authenticated %}
+                            <h1 class="m-0 text-dark"> Bienvenido <small>{{ request.user.username }}</small></h1>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            {% if user.is_authenticated %}
+                                <li class="breadcrumb-item"><a href="{% url 'ecommerce:dashboard' %}">Inicio</a></li>
+                                <li class="breadcrumb-item"><a href="{{ list_url }}">{{ entity }}</a></li>
+                            {% endif %}
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="container">
+                {% block content %}
+
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    {% include 'footer.html' %}
+</div>
+<!-- Block javascript -->
+{% block javascript %}
+
+{% endblock %}
+</body>
+{% endblock %}
