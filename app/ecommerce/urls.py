@@ -27,4 +27,5 @@ urlpatterns = [
     path('carrito/add/', views.addCart, name='carrito_add'),
     path('carrito/list/', CarritoListView.as_view(), name='carrito_list'),
     path('carrito/delete/<int:pk>/', CarritoDeleteView.as_view(), name='carrito_delete'),
+    path('carrito/purchase/', views.purchaseCart, name='carrito_purchase'),
 ]

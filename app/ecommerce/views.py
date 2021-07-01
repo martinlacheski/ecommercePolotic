@@ -1,4 +1,5 @@
-from django.db.models import Sum
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 import json
 
 from django.http import JsonResponse, HttpResponseRedirect
@@ -11,14 +12,33 @@ from app.ecommerce.forms import CategoriaForm, ProductoForm
 from app.ecommerce.models import Categoria, Producto, Carrito
 
 
-# Vista HOME
+# Vista Inicio
 class DashboardView(TemplateView):
     template_name = 'dashboard.html'
+
+    #Metodo para buscar productos en la barra de busqueda
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'autocomplete':
+                data = []
+                for i in Producto.objects.filter(titulo__icontains=request.POST['term'])[0:10]:
+                    item = {}
+                    item['id'] = i.id
+                    item['value'] = i.titulo
+                    data.append(item)
+            else:
+                data['error'] = 'Ha ocurrido un error'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['panel'] = 'Jaguarete KAA S.A.'
         context['title'] = 'Jaguarete KAA S.A.'
+        #Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         context['principales'] = Producto.objects.all().order_by("-id")[:3]
@@ -32,12 +52,14 @@ class DashboardView(TemplateView):
 
 
 # Vistas de Categoria
+
+#Vista Listar Categorias
 class CategoriaListView(ListView):
     model = Categoria
     template_name = 'categoria/list.html'
     ordering = ['descripcion']
 
-    # @method_decorator(csrf_exempt)
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -61,6 +83,7 @@ class CategoriaListView(ListView):
         context['create_url'] = reverse_lazy('ecommerce:categoria_create')
         context['list_url'] = reverse_lazy('ecommerce:categoria_list')
         context['entity'] = 'Categorias'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -71,8 +94,13 @@ class CategoriaListView(ListView):
         return context
 
 
+#Vista Lista de Productos de UNA Categoria
 class ProductosCategoriaListView(ListView):
     template_name = 'producto/list.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         self.categoria = get_object_or_404(Categoria, id=self.kwargs['pk'])
@@ -84,8 +112,10 @@ class ProductosCategoriaListView(ListView):
         context['create_url'] = reverse_lazy('ecommerce:producto_create')
         context['list_url'] = reverse_lazy('ecommerce:producto_list')
         context['entity'] = 'Productos'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
+        # Se agrega al context_data para llamar a los productos que corresponden a la categoria
         context['categoria'] = self.categoria
         # Ver si el usuario esta autenticado
         try:
@@ -95,6 +125,7 @@ class ProductosCategoriaListView(ListView):
         return context
 
 
+#Vista de Crear Categoria
 class CategoriaCreateView(CreateView):
     model = Categoria
     form_class = CategoriaForm
@@ -102,6 +133,7 @@ class CategoriaCreateView(CreateView):
     success_url = reverse_lazy('ecommerce:categoria_list')
     url_redirect = success_url
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -125,6 +157,7 @@ class CategoriaCreateView(CreateView):
         context['entity'] = 'Categorias'
         context['list_url'] = self.success_url
         context['action'] = 'add'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -135,6 +168,7 @@ class CategoriaCreateView(CreateView):
         return context
 
 
+#Vista Actualizar Categoria
 class CategoriaUpdateView(UpdateView):
     model = Categoria
     form_class = CategoriaForm
@@ -142,6 +176,7 @@ class CategoriaUpdateView(UpdateView):
     success_url = reverse_lazy('ecommerce:categoria_list')
     url_redirect = success_url
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -165,6 +200,7 @@ class CategoriaUpdateView(UpdateView):
         context['title'] = 'Editar una Categoria'
         context['entity'] = 'Categorias'
         context['list_url'] = self.success_url
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         context['action'] = 'edit'
@@ -176,12 +212,14 @@ class CategoriaUpdateView(UpdateView):
         return context
 
 
+#Vista Borrar Categoria
 class CategoriaDeleteView(DeleteView):
     model = Categoria
     template_name = 'categoria/delete.html'
     success_url = reverse_lazy('ecommerce:categoria_list')
     url_redirect = success_url
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -199,6 +237,7 @@ class CategoriaDeleteView(DeleteView):
         context['title'] = 'Eliminar una Categoria'
         context['entity'] = 'Categorias'
         context['list_url'] = self.success_url
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -210,13 +249,13 @@ class CategoriaDeleteView(DeleteView):
 
 
 # Vistas de Producto
+
+#Vista Listar Productos
 class ProductoListView(ListView):
     model = Producto
     template_name = 'producto/list.html'
 
-    # template_name = 'producto/listProdCarrito.html'
-
-    # @method_decorator(csrf_exempt)
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -240,6 +279,7 @@ class ProductoListView(ListView):
         context['create_url'] = reverse_lazy('ecommerce:producto_create')
         context['list_url'] = reverse_lazy('ecommerce:producto_list')
         context['entity'] = 'Productos'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -250,6 +290,7 @@ class ProductoListView(ListView):
         return context
 
 
+#Vista Crear Producto
 class ProductoCreateView(CreateView):
     model = Producto
     form_class = ProductoForm
@@ -257,6 +298,7 @@ class ProductoCreateView(CreateView):
     success_url = reverse_lazy('ecommerce:producto_list')
     url_redirect = success_url
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -280,6 +322,7 @@ class ProductoCreateView(CreateView):
         context['entity'] = 'Productos'
         context['list_url'] = self.success_url
         context['action'] = 'add'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -290,6 +333,7 @@ class ProductoCreateView(CreateView):
         return context
 
 
+#Vista Actualizar Producto
 class ProductoUpdateView(UpdateView):
     model = Producto
     form_class = ProductoForm
@@ -297,6 +341,7 @@ class ProductoUpdateView(UpdateView):
     success_url = reverse_lazy('ecommerce:producto_list')
     url_redirect = success_url
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -321,6 +366,7 @@ class ProductoUpdateView(UpdateView):
         context['entity'] = 'Productos'
         context['list_url'] = self.success_url
         context['action'] = 'edit'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -331,13 +377,14 @@ class ProductoUpdateView(UpdateView):
         return context
 
 
+#Vista Borrar Producto
 class ProductoDeleteView(DeleteView):
     model = Producto
     template_name = 'producto/delete.html'
     success_url = reverse_lazy('ecommerce:producto_list')
     url_redirect = success_url
 
-    # @method_decorator(login_required)
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -355,6 +402,7 @@ class ProductoDeleteView(DeleteView):
         context['title'] = 'Eliminar un Producto'
         context['entity'] = 'Productos'
         context['list_url'] = self.success_url
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -366,11 +414,12 @@ class ProductoDeleteView(DeleteView):
 
 
 # Vistas de Producto Usuario Comun
+
+#Vista Listado de Productos
 class ProductoUsuarioListView(ListView):
     model = Producto
     template_name = 'producto/listProdCarrito.html'
 
-    # @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -393,6 +442,7 @@ class ProductoUsuarioListView(ListView):
         context['title'] = 'Listado de Productos'
         context['list_url'] = reverse_lazy('ecommerce:producto_usuario_list')
         context['entity'] = 'Productos'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -403,6 +453,7 @@ class ProductoUsuarioListView(ListView):
         return context
 
 
+#Vista Ver UN Producto
 class ProductoView(ListView):
     template_name = 'producto/producto.html'
 
@@ -415,8 +466,10 @@ class ProductoView(ListView):
         context['title'] = 'Ver Producto'
         context['list_url'] = reverse_lazy('ecommerce:producto_usuario_list')
         context['entity'] = 'Producto'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
+        # Se agrega al context_data para ver los datos del producto individual
         context['producto'] = self.producto
         # Ver si el usuario esta autenticado
         try:
@@ -426,6 +479,7 @@ class ProductoView(ListView):
         return context
 
 
+#Vista de producto desde el dashboard
 class ProductoDashboardView(ListView):
     template_name = 'producto/productoDashboard.html'
 
@@ -438,6 +492,7 @@ class ProductoDashboardView(ListView):
         context['title'] = 'Ver Producto'
         context['list_url'] = reverse_lazy('ecommerce:producto_usuario_list')
         context['entity'] = 'Producto'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         context['producto'] = self.producto
@@ -450,6 +505,8 @@ class ProductoDashboardView(ListView):
 
 
 # Funciones y Vistas de Carrito
+
+#Funcion Agregar un producto al carrito
 def addCart(request):
     data = json.loads(request.body)
     # Obtenemos el producto y la accion
@@ -463,19 +520,8 @@ def addCart(request):
         carrito.save()
     return JsonResponse('Producto agregado al carrito', safe=False)
 
-def deleteCart(request):
-    data = json.loads(request.body)
-    # Obtenemos el producto y la accion
-    carritoId = data['carritoId']
-    action = data['action']
-    # Obtenemos el usuario actual
-    carrito = request.id
-    if action == 'delete':
-        carrito = Carrito.objects.delete(carrito=carrito)
-        carrito.save()
-    return JsonResponse('Producto eliminado del carrito', safe=False)
 
-
+#Listar los productos del Carrito
 class CarritoListView(ListView):
     model = Carrito
     template_name = 'carrito/list.html'
@@ -485,6 +531,7 @@ class CarritoListView(ListView):
         # Filtrar el Listview para ver con el Usuario activo
         return qs.filter(usuario__id=self.request.user.id)
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -494,9 +541,7 @@ class CarritoListView(ListView):
             action = request.POST['action']
             if action == 'searchdata':
                 user = self.request.user.id
-                print(user)
                 data = []
-                # for i in Carrito.objects.all():
                 for i in Carrito.objects.filter(usuario__id=user):
                     data.append(i.toJSON())
             else:
@@ -510,6 +555,7 @@ class CarritoListView(ListView):
         context['title'] = 'Carrito'
         context['list_url'] = reverse_lazy('ecommerce:carrito_list')
         context['entity'] = 'Carrito'
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
         # Ver si el usuario esta autenticado
@@ -519,19 +565,14 @@ class CarritoListView(ListView):
             pass
         return context
 
-
+#Eliminar productos del Carrito
 class CarritoDeleteView(DeleteView):
     model = Carrito
     template_name = 'carrito/delete.html'
     success_url = reverse_lazy('ecommerce:carrito_list')
     url_redirect = success_url
 
-    # def get_queryset(self):
-    #     self.producto = get_object_or_404(Carrito, id=self.kwargs['pk'])
-    #     print(self.producto.producto.pk)
-    #     return Producto.objects.filter(id=self.producto.producto.pk)
-
-    # @method_decorator(login_required)
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -549,7 +590,22 @@ class CarritoDeleteView(DeleteView):
         context['title'] = 'Eliminar un Producto del Carrito'
         context['entity'] = 'Carrito'
         context['list_url'] = self.success_url
+        # Se agrega al context_data para llamar desde el header y dashboard para completar
         context['categorias'] = Categoria.objects.all()
         context['productos'] = Producto.objects.all()
+        # Se agrega al context_data para filtrar los productos que corresponden al usuario logueado
         context['carrito'] = Carrito.objects.filter(usuario=self.request.user).count()
         return context
+
+
+#Comprar Carrito
+def purchaseCart(request):
+    data = json.loads(request.body)
+    print("aca llega")
+    # Obtenemos la accion
+    action = data['action']
+    # Obtenemos el usuario actual
+    usuario = request.user
+    if action == 'add':
+        carrito = Carrito.objects.filter(usuario=usuario).delete()
+    return JsonResponse('Carrito Comprado', safe=False)

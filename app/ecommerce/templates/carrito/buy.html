@@ -28,7 +28,7 @@
                 {% endif %}
                 <div class="alert alert-danger alert-dismissible">
                     <h5><i class="icon fas fa-ban"></i> Notificación!</h5>
-                    ¿Estas seguro de eliminar el registro{{ object.titulo }}?
+                    ¿Estas seguro de comprar el Carrito?
                 </div>
             </div>
             <div class="card-footer">
@@ -43,25 +43,15 @@
     </form>
     <script>
         $('form').on('submit', function (e) {
-            e.preventDefault();
-            var parameters = $(this).serializeArray();
-            $.ajax({
-                url: window.location.pathname,
-                type: 'POST',
-                data: parameters,
-                dataType: 'json'
-            }).done(function (data) {
-                console.log(data);
-                if (!data.hasOwnProperty('error')) {
-                    location.href = '{{ list_url }}';
-                    return false;
-                }
-                message_error(data.error);
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert(textStatus + ': ' + errorThrown);
-            }).always(function (data) {
-
-            });
+            Swal.fire({
+                    icon: 'success',
+                    title: 'Muchas gracias por su compra',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then((result) => {
+                    // Reload the Page
+                    location.reload();
+                });
         });
     </script>
 {% endblock %}

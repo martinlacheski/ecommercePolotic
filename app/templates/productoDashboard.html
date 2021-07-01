@@ -51,11 +51,12 @@
                     </h4>
                 </div>
                 <div class="mt-4">
+                    {% if not request.user.is_superuser %}
                     <button data-user="{{ request.user }}" data-product="{{ producto.id }}"
                             data-action="add" class="btn btn-primary btn-lg btn-flat btnAddCart">
                         <i class="fas fa-cart-plus fa-lg mr-2"></i> Agregar al carrito
                     </button>
-
+                    {% endif %}
                     <a href="{% url 'ecommerce:dashboard' %}" class="btn btn-default btn-lg btn-flat">
                         <i class="fas fa-times"></i> Volver atras
                     </a>
@@ -65,23 +66,39 @@
     </div>
 </div>
 <script type="application/javascript">
+    //Click para agregar al carrito
     $('.btnAddCart').on('click', function () {
-        //console.log('Logueado');
         var productId = this.dataset.product;
         var action = this.dataset.action;
         //console.log(user);
         if (user == 'AnonymousUser') {
-            //console.log('Usuario no autenticado')
+
+            console.log('Usuario no autenticado')
+            var url = location.href;
+            url = url.replace("http://127.0.0.1:8000/", "");
+            $.confirm({
+                title: 'Debe iniciar sesión o registrarse',
+                content: 'Si desea hacerlo, haga click en "SI"',
+                buttons: {
+                    Si: function () {
+                        var urlLogin = 'http://127.0.0.1:8000/login/'
+                        window.location = (urlLogin+'?next=/'+url);
+                    },
+                    heyThere: {
+                        text: 'No',
+                        action: function () {
+                        }
+                    }
+                }
+            });
         } else {
-            //console.log('hasta aca todo OK')
             addCart(user, productId, action)
         }
     })
 
+    //Funcion para enviar el producto al BACKEND
     function addCart(user, productId, action) {
-        //console.log('Usuario: ', user, 'Producto ID: ', productId, 'Accion: ', action)
         var url = '/carrito/add/'
-
         fetch(url, {
             method: 'post',
             headers: {
@@ -94,7 +111,6 @@
                 return response.json();
             })
             .then((data) => {
-                //console.log('hasta aca todo OK')
                 Swal.fire({
                     icon: 'success',
                     title: 'Producto agregado al Carrito',

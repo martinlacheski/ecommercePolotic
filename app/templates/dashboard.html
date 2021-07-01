@@ -1,6 +1,7 @@
 {% extends 'body.html' %}
 {% load static %}
 {% block head %}
+
 <link rel="stylesheet" href="{% static 'lib/datatables-1.10.20/css/dataTables.bootstrap4.min.css' %}"/>
 <link rel="stylesheet"
       href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.bootstrap4.min.css' %}"/>
@@ -8,12 +9,53 @@
 <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
+
+<link href="{% static 'lib/jquery-ui-1.12.1/jquery-ui.min.css' %}" rel="stylesheet"/>
+<script src="{% static 'lib/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+
+<script type="application/javascript">
+    //Funcion para generar el TOKEN para pasar por Javascript Info al Backend
+    function getToken(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    //Constante TOKEN
+    const csrftoken = getToken('csrftoken');
+</script>
+
 {% endblock %}
 {% block content %}
 <div class="content-wrapper">
     <div class="container-fluid">
         <div class="card card-group">
             <div class="card-group">
+                <!-- Busqueda -->
+                <div class="col-lg-12">
+                    <form class="card">
+                        <div class="input-group">
+                            <input type="text" class="form-control col-12" autocomplete="off"
+                                   placeholder="Buscar productos" maxlength="50" name="search">
+                            <div class="input-group-append">
+                                <button id="clearSearch" class="btn btn-navbar" type="button" name="clearSearch"
+                                        data-widget="navbar-search">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <!--Producto 1 al 3-->
                 {% for p in principales %}
                 <div class="col-4">
@@ -26,7 +68,7 @@
                                 <div class="col-12 col-sm-6">
                                     <h3 class="d-inline-block d-sm-none"></h3>
                                     <div class="col-12">
-                                        <img src="{{ p.imagen.url }}" class="product-image" alt="Product Image" >
+                                        <img src="{{ p.imagen.url }}" class="product-image" alt="Product Image">
                                     </div>
                                 </div>
                                 <div class="col-12 col-sm-6">
@@ -96,7 +138,7 @@
         $('#data').DataTable({
             paging: false,
             searching: false,
-            ordering:  false,
+            ordering: false,
             responsive: true,
             autoWidth: false,
             info: false,
@@ -115,6 +157,45 @@
             ],
         });
     });
+
+    // buscar productos
+    $('input[name="search"]').autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                data: {
+                    'action': 'autocomplete',
+                    'term': request.term
+                },
+                dataType: 'json',
+            }).done(function (data) {
+                response(data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                //alert(textStatus + ': ' + errorThrown);
+            }).always(function (data) {
+
+            });
+        },
+        delay: 100,
+        minLength: 1,
+        select: function (event, ui) {
+            var prod = 'ui.item.id';
+            console.log(prod);
+            // var prod = '{{request.user}}'
+            window.location = 'view/' + ui.item.id;
+            // window.location.href = 'ecommerce:producto_view ui.item.id';
+        }
+    });
+
+    //Click para borrar busqueda
+    $('#clearSearch').on('click', function () {
+        $('input[name="search"]').val('');
+    })
+
 </script>
 {% endblock %}
 

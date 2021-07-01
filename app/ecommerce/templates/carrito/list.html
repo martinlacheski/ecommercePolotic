@@ -11,6 +11,35 @@
 <script src="{% static 'lib/datatables-1.10.20/js/dataTables.bootstrap4.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/dataTables.responsive.min.js' %}"></script>
 <script src="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- Jquery Confirm -->
+<link rel="stylesheet" href="{% static 'lib/jquery-confirm-v3.3.4/jquery-confirm.min.css' %}">
+<script src="{% static 'lib/jquery-confirm-v3.3.4/jquery-confirm.min.js' %}"></script>
+
+<script type="application/javascript">
+    //Obtenemos el usuario actual
+    var user = '{{request.user}}'
+
+    //Funcion para generar el TOKEN para pasar por Javascript Info al Backend
+    function getToken(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    //Constante TOKEN
+    const csrftoken = getToken('csrftoken');
+</script>
+
 {% endblock %}
 
 {% block content %}
@@ -54,14 +83,15 @@
 
     <div class="card-footer">
         <div class="mt-0 text-xl-center">
-        <label>Total a pagar:</label>
-        <div class="py-2 px-2 mt-1">
-            <h5 id="totalCarrito" class="mt-0 text-xl-center"></h5>
+            <label>Total a pagar:</label>
+            <div class="py-2 px-2 mt-1">
+                <h5 id="totalCarrito" class="mt-0 text-xl-center"></h5>
+            </div>
         </div>
-    </div>
-        <a href="{{ create_url }}" class="btn btn-primary btn-flat btnTest">
-            <i class="fas fa-shopping-cart"></i> Comprar
-        </a>
+        <button data-user="{{ request.user }}" data-action="add"
+                class="btn btn-primary btn-flat btnPurchaseCart">
+            <i class="fas fa-cart-plus fa-lg mr-2"></i> Comprar
+        </button>
         <a href="{% url 'ecommerce:dashboard' %}" class="btn btn-danger btn-flat">
             <i class="fas fa-backspace"></i> Volver
         </a>
@@ -98,9 +128,55 @@
         $('td:nth-child(4)').each(function () {
             precio = $(this).html();
             total += parseFloat(precio);
-            $('#totalCarrito').text(peso.concat('',total.toFixed(2)));
+            $('#totalCarrito').text(peso.concat('', total.toFixed(2)));
         })
     });
+    $('.btnPurchaseCart').on('click', function () {
+        var action = this.dataset.action;
 
+            $.confirm({
+                title: 'Jaguarete KAA S.A.',
+                content: 'Si desea realizar su compra, haga click en "SI"',
+                buttons: {
+                    Si: function () {
+                        purchaseCart(user, action)
+                    },
+                    heyThere: {
+                        text: 'No',
+                        action: function () {
+                        }
+                    }
+                }
+            });
+
+    });
+
+    //Funcion para enviar el producto al BACKEND
+    function purchaseCart(user, action) {
+        var url = '/carrito/purchase/'
+        fetch(url, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({'action': action})
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Muchas gracias por su compra',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then((result) => {
+                    var url = 'http://127.0.0.1:8000/'
+                    window.location = (url);
+                });
+            })
+    }
+    ;
 </script>
 {% endblock %}
