@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 import json
 
 from django.http import JsonResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
@@ -50,6 +50,42 @@ class DashboardView(TemplateView):
             pass
         return context
 
+# Vista Contacto
+class ContactoView(TemplateView):
+    template_name = 'contacto.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['panel'] = 'Jaguarete KAA S.A.'
+        context['title'] = 'Jaguarete KAA S.A.'
+        #Se agrega al context_data para llamar desde el header y dashboard para completar
+        context['categorias'] = Categoria.objects.all()
+        context['productos'] = Producto.objects.all()
+        # Ver si el usuario esta autenticado
+        try:
+            context['carrito'] = Carrito.objects.filter(usuario=self.request.user).count()
+        except Exception as e:
+            pass
+        return context
+
+
+# Vista Contacto
+class AcercaView(TemplateView):
+    template_name = 'acerca.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['panel'] = 'Jaguarete KAA S.A.'
+        context['title'] = 'Jaguarete KAA S.A.'
+        #Se agrega al context_data para llamar desde el header y dashboard para completar
+        context['categorias'] = Categoria.objects.all()
+        context['productos'] = Producto.objects.all()
+        # Ver si el usuario esta autenticado
+        try:
+            context['carrito'] = Carrito.objects.filter(usuario=self.request.user).count()
+        except Exception as e:
+            pass
+        return context
 
 # Vistas de Categoria
 
@@ -61,7 +97,9 @@ class CategoriaListView(ListView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -100,7 +138,9 @@ class ProductosCategoriaListView(ListView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def get_queryset(self):
         self.categoria = get_object_or_404(Categoria, id=self.kwargs['pk'])
@@ -135,7 +175,9 @@ class CategoriaCreateView(CreateView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -178,8 +220,10 @@ class CategoriaUpdateView(UpdateView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            self.object = self.get_object()
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -221,8 +265,10 @@ class CategoriaDeleteView(DeleteView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            self.object = self.get_object()
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -257,7 +303,9 @@ class ProductoListView(ListView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -300,7 +348,9 @@ class ProductoCreateView(CreateView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -343,8 +393,10 @@ class ProductoUpdateView(UpdateView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            self.object = self.get_object()
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -386,8 +438,10 @@ class ProductoDeleteView(DeleteView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
+        if request.user.is_superuser:
+            self.object = self.get_object()
+            return super().dispatch(request, *args, **kwargs)
+        return redirect('ecommerce:dashboard')
 
     def post(self, request, *args, **kwargs):
         data = {}

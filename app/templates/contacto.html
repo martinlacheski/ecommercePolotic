@@ -1,0 +1,71 @@
+{% extends 'body.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block head %}
+<!-- JQuery-Validation -->
+<script src="{% static 'lib/jquery-validation-1.19.3/jquery.validate.js' %}"></script>
+<!-- Sweetalert2 -->
+<script src="{% static 'lib/sweetalert2-10.0.2/sweetalert2.all.min.js' %}"></script>
+{% endblock %}
+{% block content %}
+<!-- Main content -->
+<section class="content">
+    <div class="card">
+        <div class="card-body row">
+            <div class="col-5 text-center d-flex align-items-center justify-content-center">
+                <div class="">
+                    <h2>Jaguarete<strong>KAA S.A.</strong></h2>
+                    <p class="lead mb-5">Dirección: Parque industrial - Posadas - Misiones<br>
+                        Teléfonos: +54 3764 484410
+                    </p>
+                </div>
+            </div>
+            <div class="col-7">
+                <form id="quickForm" method="get" action="">
+                    <div class="form-group">
+                        <label for="cnombre">Nombre y Apellido</label>
+                        <input type="text" name="nombre" class="form-control" id="cnombre"
+                               placeholder="Ingrese sus datos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cemail">Correo Electrónico</label>
+                        <input type="email" name="email" class="form-control" id="cemail"
+                               placeholder="Ingrese su correo electrónico" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="casunto">Asunto</label>
+                        <input type="text" name="asunto" class="form-control" id="casunto"
+                               placeholder="Ingrese el asunto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cmensaje">Mensaje</label>
+                        <textarea type="text" name="mensaje" class="form-control" id="cmensaje"
+                                  placeholder="Ingrese su mensaje" rows="4" minlength="5" required></textarea>
+                    </div>
+                    <!-- Enviar Mail -->
+                    <div class="form-group">
+                        <button type="submit" class="submit btn btn-primary btn-flat btnSend">
+                            <i class="fas fa-paper-plane"></i> Enviar
+                        </button>
+                        <a href="{% url 'ecommerce:dashboard' %}" class="btn btn-danger btn-flat">
+                        <i class="fas fa-backspace"></i> Volver
+                    </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(function () {
+        $("#cnombre").validate();
+        $("#cemail").validate();
+        $("#casunto").validate();
+        $("#cmensaje").validate();
+    });
+</script>
+{% endblock %}

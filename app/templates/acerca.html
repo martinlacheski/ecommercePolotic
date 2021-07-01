@@ -1,0 +1,52 @@
+{% extends 'body.html' %}
+{% block content %}
+<!-- Main content -->
+<section class="content">
+    <div class="card">
+        <div class="card-body row">
+            <div class="col-5 text-center d-flex align-items-center justify-content-center">
+                <div class="">
+                    <h2>Jaguarete<strong>KAA S.A.</strong></h2>
+                    <p class="lead mb-5">Dirección: Parque industrial - Posadas - Misiones<br>
+                        Teléfonos: +54 3764 484410
+                    </p>
+                </div>
+            </div>
+            <div class="col-7">
+                <div class="">
+                    <h2><strong>Institucional</strong></h2>
+                    <p class="text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                        tempor incididunt ut labore et dolore magna aliqua. Nisi lacus sed viverra tellus in.
+                        At elementum eu facilisis sed odio morbi quis commodo odio. Ipsum a arcu cursus vitae congue.
+                        Facilisis magna etiam tempor orci eu. Aliquam vestibulum morbi blandit cursus risus at.
+                        Mauris pharetra et ultrices neque ornare aenean euismod. Lacus sed viverra tellus in hac.
+                        Eget mi proin sed libero enim sed faucibus turpis. Aliquam purus sit amet luctus venenatis
+                        lectus. Consequat semper viverra nam libero justo laoreet sit amet. Massa ultricies mi quis
+                        hendrerit. Ridiculus mus mauris vitae ultricies leo integer malesuada nunc vel.
+                        Amet consectetur adipiscing elit pellentesque habitant. Imperdiet sed euismod nisi porta
+                        lorem mollis. Faucibus scelerisque eleifend donec pretium vulputate.<br>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <a href="{% url 'ecommerce:dashboard' %}" class="btn btn-danger btn-flat">
+                        <i class="fas fa-backspace"></i> Volver
+                    </a>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(function () {
+        $("#cnombre").validate();
+        $("#cemail").validate();
+        $("#casunto").validate();
+        $("#cmensaje").validate();
+    });
+</script>
+{% endblock %}

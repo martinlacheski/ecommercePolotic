@@ -8,6 +8,8 @@ app_name = 'ecommerce'
 urlpatterns = [
     # home
     path('', DashboardView.as_view(), name='dashboard'),
+    path('contacto/', ContactoView.as_view(), name='contacto'),
+    path('acerca/', AcercaView.as_view(), name='about'),
     # categorias
     path('categoria/list/', CategoriaListView.as_view(), name='categoria_list'),
     path('categoria/add/', CategoriaCreateView.as_view(), name='categoria_create'),

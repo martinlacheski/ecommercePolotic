@@ -18,8 +18,17 @@
         <!-- MODULOS -->
         <div class="collapse navbar-collapse order-3" id="navbarCollapse">
             <ul class="navbar-nav">
+                <!--Inicio-->
                 <li class="nav-item">
                     <a href="{% url 'ecommerce:dashboard' %}" class="nav-link"><i class="fas fa-home"></i> Inicio</a>
+                </li>
+                <!-- Acerca de-->
+                <li class="nav-item">
+                    <a href="{% url 'ecommerce:about' %}" class="nav-link"><i class="fas fa-building"></i> Acerca de...</a>
+                </li>
+                <!-- Contacto-->
+                <li class="nav-item">
+                    <a href="{% url 'ecommerce:contacto' %}" class="nav-link"><i class="fas fa-envelope"></i> Contacto</a>
                 </li>
                 {% if user.is_superuser %}
                 <li class="nav-item dropdown">
