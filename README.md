@@ -1,7 +1,7 @@
 # ecommercePolotic
 Trabajo Integrador Curso PYTHON Y JAVASCRIPT - Polotic - Misiones - Argentina
 
-Modulos: 
+# Modulos: 
 
 Inicio y Cierre de Sesion 
 Alta de Usuarios 
@@ -9,11 +9,11 @@ CRUD de Categorias
 CRUD Productos 
 CRUD Carrito
 
-BASE DE DATOS:
+# BASE DE DATOS:
 
 Se utiliza la BD por defecto de Django, SQLITE3
 
-ENTORNO VIRTUAL del Proyecto
+# ENTORNO VIRTUAL del Proyecto
 
 Crear un entorno virtual al nivel de la carpeta app con el siguiente comando:
 
@@ -23,7 +23,7 @@ Luego acceder a "RAIZ Proyecto"/venv/bin y ejecutar:
 
 source bin/ activate #Para activar el entorno virtual
 
-LIBRERIAS NECESARIAS del Proyecto
+# LIBRERIAS NECESARIAS del Proyecto
 
 Luego ejecutar lo siguiente para instalar las librerias necesarias:
 
@@ -39,7 +39,7 @@ ejecutamos:
 
 pip install -r requirements.txt
 
-PARA EJECUTAR EL PROYECTO
+# PARA EJECUTAR EL PROYECTO
 
 Ubicarse dentro de la carpeta app/
 
@@ -58,9 +58,6 @@ SuperUsuario: moderador Contraseña: ninguna
 Usuarios comunes:
 
 Usuario: usuario Contraseña: usuario2021
-
-Usuario: visualizar Contraseña: usuario2021
-
 
 El proyecto fue realizado con las siguiente tecnologías:
 
